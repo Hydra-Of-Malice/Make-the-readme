@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Make the README</title>
+<meta name="description" content="Fill in your project facts, get a ready-to-use prompt for a README that is attractive and honest, then check the result.">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --text: #1b1f24;
+    --muted: #5b6573;
+    --border: #d8dde3;
+    --accent: #2f6fde;
+    --accent-text: #ffffff;
+    --field: #ffffff;
+    --ok: #1a7f37;
+    --warn: #9a6700;
+    --bad: #cf222e;
+    --code: #eef1f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1216;
+      --panel: #171b21;
+      --text: #e6e9ee;
+      --muted: #9aa4b2;
+      --border: #2c333d;
+      --accent: #5b91f0;
+      --accent-text: #0b0e12;
+      --field: #0f1216;
+      --ok: #4ac26b;
+      --warn: #d4a72c;
+      --bad: #ff7b72;
+      --code: #0b0e12;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1216;
+    --panel: #171b21;
+    --text: #e6e9ee;
+    --muted: #9aa4b2;
+    --border: #2c333d;
+    --accent: #5b91f0;
+    --accent-text: #0b0e12;
+    --field: #0f1216;
+    --ok: #4ac26b;
+    --warn: #d4a72c;
+    --bad: #ff7b72;
+    --code: #0b0e12;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 16px 8px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  h1 { margin: 0; font-size: 26px; letter-spacing: -0.01em; }
+  header p { margin: 4px 0 0; color: var(--muted); }
+  .tabs { display: flex; gap: 4px; }
+  .tab {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font: inherit;
+    cursor: pointer;
+  }
+  .tab[aria-selected="true"] { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  main { max-width: 1200px; margin: 0 auto; padding: 12px 16px 40px; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+  @media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    min-width: 0;
+  }
+  .panel h2 { margin: 0 0 12px; font-size: 16px; }
+  label { display: block; font-weight: 600; font-size: 13px; margin: 14px 0 4px; }
+  label:first-of-type { margin-top: 0; }
+  .hint { font-weight: 400; color: var(--muted); }
+  input, textarea {
+    width: 100%;
+    background: var(--field);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font: inherit;
+  }
+  textarea { resize: vertical; min-height: 64px; }
+  input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  button.btn {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font: inherit;
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+  button.btn:hover { filter: brightness(0.96); }
+  #output, #readmeIn {
+    font: 12.5px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+    background: var(--code);
+    min-height: 560px;
+  }
+  .meter { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: var(--muted); font-size: 13px; }
+  .bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+  .status { color: var(--muted); font-size: 13px; min-height: 1.5em; margin-top: 8px; }
+  .hidden { display: none; }
+  ul.results { list-style: none; padding: 0; margin: 0; }
+  ul.results li { padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
+  ul.results li:last-child { border-bottom: 0; }
+  .tag { font-size: 12px; font-weight: 700; min-width: 44px; }
+  .tag.ok { color: var(--ok); }
+  .tag.warn { color: var(--warn); }
+  .tag.bad { color: var(--bad); }
+  .score { font-size: 28px; font-weight: 700; margin: 0 0 4px; }
+  footer { max-width: 1200px; margin: 0 auto; padding: 0 16px 32px; color: var(--muted); font-size: 13px; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>📝 Make the README</h1>
+    <p>Fill in the facts. Copy the prompt. Check the README you get back.</p>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tabBuild" aria-selected="true">1 · Build prompt</button>
+    <button class="tab" role="tab" id="tabCheck" aria-selected="false">2 · Check README</button>
+  </div>
+</header>
+
+<main>
+  <section id="viewBuild" class="grid">
+    <div class="panel">
+      <h2>Project facts</h2>
+      <div class="meter"><span id="filledCount">0 of 11 filled</span><div class="bar"><span id="filledBar"></span></div></div>
+
+      <label for="f_name">Name</label>
+      <input id="f_name" placeholder="VoiceClone Studio">
+
+      <label for="f_promise">One-line promise <span class="hint">— what the user gets</span></label>
+      <input id="f_promise" placeholder="Type a script. Hear it in your own voice.">
+
+      <label for="f_audience">Who it is for</label>
+      <input id="f_audience" placeholder="Podcasters and video makers on Windows">
+
+      <label for="f_platforms">Platforms and hardware</label>
+      <input id="f_platforms" placeholder="Windows 10/11, NVIDIA GPU with 6 GB VRAM, 8 GB disk">
+
+      <label for="f_get">How users get it</label>
+      <input id="f_get" placeholder="Installer on the GitHub Releases page">
+
+      <label for="f_features">Main features <span class="hint">— one per line</span></label>
+      <textarea id="f_features" rows="4" placeholder="Clone a voice from a 30-second sample&#10;Runs fully offline"></textarea>
+
+      <label for="f_unsupported">Not supported or not yet tested <span class="hint">— one per line</span></label>
+      <textarea id="f_unsupported" rows="3" placeholder="macOS and Linux&#10;AMD GPUs are untested"></textarea>
+
+      <label for="f_stack">Tech stack and third-party components with licenses <span class="hint">— one per line</span></label>
+      <textarea id="f_stack" rows="3" placeholder="Python 3.11 (PSF)&#10;PyTorch (BSD-3-Clause)"></textarea>
+
+      <label for="f_repo">Repo URL <span class="hint">— owner/repo</span></label>
+      <input id="f_repo" placeholder="your-name/your-repo">
+
+      <label for="f_shots">Screenshot files <span class="hint">— one path per line</span></label>
+      <textarea id="f_shots" rows="2" placeholder="docs/screenshot-main.png&#10;docs/screenshot-steps.png"></textarea>
+
+      <label for="f_license">License</label>
+      <input id="f_license" placeholder="MIT, or &quot;all rights reserved&quot;">
+
+      <div class="row">
+        <button class="btn" id="btnExample">Load example</button>
+        <button class="btn" id="btnClear">Clear all</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Your prompt</h2>
+      <textarea id="output" readonly spellcheck="false" aria-label="Generated prompt"></textarea>
+      <div class="row">
+        <button class="btn primary" id="btnCopy">Copy prompt</button>
+        <button class="btn" id="btnDownload">Download .md</button>
+      </div>
+      <div class="status" id="buildStatus">Empty fields keep their [placeholder] so the assistant knows what is missing.</div>
+    </div>
+  </section>
+
+  <section id="viewCheck" class="grid hidden">
+    <div class="panel">
+      <h2>Paste the README you got back</h2>
+      <textarea id="readmeIn" spellcheck="false" placeholder="# 🎙️ My Project&#10;..." aria-label="README to check"></textarea>
+      <div class="row">
+        <button class="btn primary" id="btnRunCheck">Check it</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Results</h2>
+      <p class="score" id="score">—</p>
+      <p class="status" id="checkSummary">Checks structure, banned words, commands, local paths, and "generated by" lines. It cannot check whether claims are true. That part is yours.</p>
+      <ul class="results" id="results"></ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Everything runs in your browser. Nothing you type is sent anywhere.
+  Source: <a href="https://github.com/Hydra-Of-Malice/Make-the-readme">Hydra-Of-Malice/Make-the-readme</a>
+</footer>
+
+<script>
+const TEMPLATE = `You are writing the README.md for a GitHub repository. The goal is a README that makes a
+first-time visitor want to download the project within 10 seconds, and that stays honest.
+PROJECT FACTS (fill in)
+{{FACTS}}
+STRUCTURE, IN THIS ORDER
+1. Hero block, centered with <div align="center">:
+   - H1 with one emoji and the project name
+   - H3 tagline: the one-line promise, under 10 words
+   - One bold line with the 2-3 strongest differentiators, separated by " · "
+   - 3-4 shields.io badges in "for-the-badge" style: download/version (linked to the latest
+     release), platform, key requirement, one standout property
+   - The main screenshot at width 720
+2. Two or three sentences on what the user can do with it, naming concrete use cases.
+3. "Why you'll like it": a two-column table, one emoji + bold 2-4 word benefit on the left,
+   one plain sentence on the right. 5-7 rows. Benefits, not implementation details.
+4. "Three steps": a second screenshot, then a numbered list of exactly three steps, each a
+   bold verb phrase plus one short sentence.
+5. "Download": numbered install steps, including any warning the user will actually see
+   (unsigned installer, multi-part download), then a requirements table that also lists
+   what is not supported.
+6. "What it does": a table of stages and what happens in each.
+7. "How it works": a small ASCII flow diagram and a table of component / purpose / license.
+8. "Responsible use" or safety section, if the project can be misused.
+9. "Known limits": a plain bullet list. Do not soften or hide limitations.
+10. "Development": prerequisites, setup commands in fenced code blocks, a folder table,
+    build instructions.
+11. "License" and a link to third-party notices.
+STYLE RULES
+- Write for someone who has never seen the project. Lead with outcomes, not technology.
+- Short sentences. No buzzwords, no "revolutionary", "seamless", "cutting-edge", "powerful".
+- Every claim must be true and checkable. If something is untested, say so in Known limits.
+- Use emojis only in section headings and the benefits table, one per item.
+- Use tables for anything with two or more attributes; use numbered lists only for steps.
+- Put all commands in fenced code blocks with a language tag.
+- Technical detail goes in the lower half; the top half must be readable by a non-developer.
+- No local file paths, usernames, or personal details from the development machine.
+- Do not mention any AI assistant or tool used to write the code or the README, and add no
+  "generated by" or co-author lines.
+OUTPUT
+Return only the final README.md in GitHub-flavored Markdown, ready to commit.`;
+
+const FIELDS = [
+  { id: "name",        label: "Name",                                                  ph: "[project name]" },
+  { id: "promise",     label: "One-line promise, written as what the user gets",       ph: '[e.g. "Type a script. Hear it in your own voice."]' },
+  { id: "audience",    label: "Who it is for",                                         ph: "[audience]" },
+  { id: "platforms",   label: "Platforms and hardware requirements",                   ph: "[OS, GPU, disk space]" },
+  { id: "get",         label: "How users get it",                                      ph: "[releases page / package manager / URL]" },
+  { id: "features",    label: "Main features",                                         ph: "[list]", list: true },
+  { id: "unsupported", label: "What is NOT supported or not yet tested",               ph: "[list]", list: true },
+  { id: "stack",       label: "Tech stack and third-party components with licenses",   ph: "[list]", list: true },
+  { id: "repo",        label: "Repo URL",                                              ph: "[owner/repo]" },
+  { id: "shots",       label: "Screenshot files available",                            ph: "[paths, e.g. docs/screenshot-main.png]", list: true },
+  { id: "license",     label: "License",                                               ph: '[license, or "all rights reserved"]' },
+];
+
+const EXAMPLE = {
+  name: "Make the README",
+  promise: "Get a README people want to download from.",
+  audience: "Anyone publishing a project on GitHub, including non-developers",
+  platforms: "Any modern desktop browser. No install, no account, no server.",
+  get: "Open the web page, or download the repo as a ZIP and open index.html",
+  features: "Form for the 11 project facts that turns into a ready-to-paste prompt\nPrompt enforces a fixed 11-section README structure\nStyle rules that ban buzzwords and require every claim to be checkable\nREADME checker that flags missing sections, buzzwords, and local paths\nWorks offline; nothing is sent anywhere",
+  unsupported: "The checker cannot verify that claims are true\nOnly tested in desktop Chrome so far\nEnglish only",
+  stack: "Plain HTML, CSS, and JavaScript, no dependencies\nshields.io badge images (referenced by URL, not bundled)",
+  repo: "Hydra-Of-Malice/Make-the-readme",
+  shots: "docs/screenshot-main.png\ndocs/screenshot-steps.png",
+  license: "MIT",
+};
+
+const STORE_KEY = "make-the-readme:facts";
+const $ = (id) => document.getElementById(id);
+
+function readFacts() {
+  const facts = {};
+  for (const f of FIELDS) facts[f.id] = $("f_" + f.id).value;
+  return facts;
+}
+
+function buildPrompt(facts) {
+  const lines = FIELDS.map((f) => {
+    const raw = (facts[f.id] || "").trim();
+    if (!raw) return `- ${f.label}: ${f.ph}`;
+    if (f.list) {
+      const items = raw.split(/\r?\n/).map((s) => s.replace(/^[-*•]\s*/, "").trim()).filter(Boolean);
+      return `- ${f.label}:\n` + items.map((s) => `  - ${s}`).join("\n");
+    }
+    return `- ${f.label}: ${raw.replace(/\s*\r?\n\s*/g, " ")}`;
+  });
+  return TEMPLATE.replace("{{FACTS}}", lines.join("\n"));
+}
+
+function render() {
+  const facts = readFacts();
+  $("output").value = buildPrompt(facts);
+  const filled = FIELDS.filter((f) => (facts[f.id] || "").trim()).length;
+  $("filledCount").textContent = `${filled} of ${FIELDS.length} filled`;
+  $("filledBar").style.width = (filled / FIELDS.length) * 100 + "%";
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(facts)); } catch (e) {}
+}
+
+function fill(facts) {
+  for (const f of FIELDS) $("f_" + f.id).value = facts[f.id] || "";
+  render();
+}
+
+function flash(msg) {
+  $("buildStatus").textContent = msg;
+}
+
+// ---------- README checker ----------
+const BUZZ = ["revolutionary", "seamless", "seamlessly", "cutting-edge", "cutting edge", "powerful",
+  "game-changing", "game changer", "next-generation", "next-gen", "state-of-the-art", "blazing",
+  "world-class", "best-in-class", "robust", "leverage", "unleash", "supercharge", "effortless",
+  "effortlessly", "groundbreaking", "innovative"];
+
+const SECTIONS = [
+  { name: "Why you'll like it", re: /^#{2,3}\s.*why you.?ll like it/im },
+  { name: "Three steps",        re: /^#{2,3}\s.*three steps/im },
+  { name: "Download",           re: /^#{2,3}\s.*download/im },
+  { name: "What it does",       re: /^#{2,3}\s.*what it does/im },
+  { name: "How it works",       re: /^#{2,3}\s.*how it works/im },
+  { name: "Known limits",       re: /^#{2,3}\s.*known limits/im },
+  { name: "Development",        re: /^#{2,3}\s.*development/im },
+  { name: "License",            re: /^#{2,3}\s.*license/im },
+];
+
+function checkReadme(md) {
+  const out = [];
+  const add = (level, text) => out.push({ level, text });
+  const noCode = md.replace(/```[\s\S]*?```/g, "");
+
+  // Hero
+  const hero = /<div\s+align=["']center["']>/i.test(md);
+  add(hero ? "ok" : "bad", hero ? "Hero block is centered." : 'No <div align="center"> hero block.');
+  const h1 = noCode.match(/^#\s+(.+)$/m) || noCode.match(/<h1[^>]*>(.*?)<\/h1>/i);
+  add(h1 ? "ok" : "bad", h1 ? "Has an H1 title." : "No H1 title.");
+  const h3 = noCode.match(/^###\s+(.+)$/m) || noCode.match(/<h3[^>]*>(.*?)<\/h3>/i);
+  if (h3) {
+    const words = h3[1].replace(/<[^>]+>/g, "").trim().split(/\s+/).length;
+    add(words < 10 ? "ok" : "warn", `Tagline is ${words} words${words < 10 ? "." : " (aim for under 10)."}`);
+  } else add("bad", "No H3 tagline.");
+  const badges = (md.match(/img\.shields\.io/g) || []).length;
+  add(badges >= 3 && badges <= 4 ? "ok" : "warn", `${badges} shields.io badge${badges === 1 ? "" : "s"} (aim for 3-4).`);
+  const imgs = (md.match(/<img[^>]+src=["'][^"']*\.(png|jpe?g|gif|webp|svg)["'][^>]*>|!\[[^\]]*\]\([^)]+\.(png|jpe?g|gif|webp)\)/gi) || [])
+    .filter((s) => !/shields\.io/i.test(s)).length;
+  add(imgs >= 2 ? "ok" : "warn", `${imgs} screenshot${imgs === 1 ? "" : "s"} (the structure asks for 2).`);
+
+  // Sections
+  const missing = SECTIONS.filter((s) => !s.re.test(noCode)).map((s) => s.name);
+  add(missing.length ? "bad" : "ok", missing.length ? `Missing sections: ${missing.join(", ")}.` : "All required sections are present.");
+
+  // Order
+  const positions = SECTIONS.map((s) => { const m = noCode.match(s.re); return m ? noCode.indexOf(m[0]) : -1; }).filter((p) => p >= 0);
+  const inOrder = positions.every((p, i) => i === 0 || p > positions[i - 1]);
+  if (positions.length > 1) add(inOrder ? "ok" : "warn", inOrder ? "Sections are in the expected order." : "Sections are out of the expected order.");
+
+  // Three steps
+  const stepsMatch = noCode.match(/^#{2,3}\s.*three steps.*$([\s\S]*?)(?=^#{1,3}\s)/im);
+  if (stepsMatch) {
+    const n = (stepsMatch[1].match(/^\s*\d+\.\s/gm) || []).length;
+    add(n === 3 ? "ok" : "warn", `"Three steps" has ${n} numbered step${n === 1 ? "" : "s"}${n === 3 ? "." : " (should be exactly 3)."}`);
+  }
+
+  // Benefits rows
+  const whyMatch = noCode.match(/^#{2,3}\s.*why you.?ll like it.*$([\s\S]*?)(?=^#{1,3}\s)/im);
+  if (whyMatch) {
+    const rows = whyMatch[1].split("\n").filter((l) => /^\s*\|/.test(l) && !/^\s*\|\s*:?-{2,}/.test(l));
+    const n = Math.max(0, rows.length - 1);
+    add(n >= 5 && n <= 7 ? "ok" : "warn", `Benefits table has ${n} row${n === 1 ? "" : "s"} (aim for 5-7).`);
+  }
+
+  // Buzzwords
+  const lower = noCode.toLowerCase();
+  const hits = BUZZ.filter((w) => new RegExp("\\b" + w.replace(/-/g, "[- ]") + "\\b", "i").test(lower));
+  add(hits.length ? "bad" : "ok", hits.length ? `Buzzwords found: ${hits.join(", ")}.` : "No buzzwords found.");
+
+  // Code fences with language
+  const fences = md.match(/^```.*$/gm) || [];
+  const opens = fences.filter((_, i) => i % 2 === 0);
+  const bare = opens.filter((f) => f.trim() === "```").length;
+  if (opens.length) add(bare ? "warn" : "ok", bare ? `${bare} code block${bare === 1 ? "" : "s"} without a language tag.` : "Every code block has a language tag.");
+  else add("warn", "No fenced code blocks. Setup commands belong in them.");
+
+  // Local paths / personal details
+  const pathRe = /([A-Za-z]:\\(Users|Documents and Settings)\\[^\s`'"]+)|(\/Users\/[A-Za-z0-9._-]+)|(\/home\/[A-Za-z0-9._-]+)/g;
+  const paths = [...new Set(md.match(pathRe) || [])];
+  add(paths.length ? "bad" : "ok", paths.length ? `Local paths found: ${paths.slice(0, 3).join(", ")}${paths.length > 3 ? "…" : ""}` : "No local machine paths.");
+
+  // Generated-by / co-author
+  const gen = /generated (by|with)|co-authored-by|written by (chatgpt|claude|copilot|gemini|an? ai)/i.test(md);
+  add(gen ? "bad" : "ok", gen ? 'Contains a "generated by" or co-author line.' : 'No "generated by" or co-author lines.');
+
+  // Known limits has content
+  const limMatch = noCode.match(/^#{2,3}\s.*known limits.*$([\s\S]*?)(?=^#{1,3}\s|$(?![\s\S]))/im);
+  if (limMatch) {
+    const n = (limMatch[1].match(/^\s*[-*]\s+\S/gm) || []).length;
+    add(n >= 2 ? "ok" : "warn", `Known limits lists ${n} item${n === 1 ? "" : "s"}${n >= 2 ? "." : ". Be honest; most projects have more."}`);
+  }
+
+  add("warn", "Manual check: is every claim true, and is everything untested listed in Known limits?");
+  return out;
+}
+
+function runCheck() {
+  const md = $("readmeIn").value;
+  const list = $("results");
+  list.innerHTML = "";
+  if (!md.trim()) { $("score").textContent = "—"; $("checkSummary").textContent = "Paste a README first."; return; }
+  const res = checkReadme(md);
+  const auto = res.slice(0, -1);
+  const pass = auto.filter((r) => r.level === "ok").length;
+  $("score").textContent = `${pass} / ${auto.length} passed`;
+  $("checkSummary").textContent = `${auto.filter((r) => r.level === "bad").length} problems, ${auto.filter((r) => r.level === "warn").length} warnings.`;
+  for (const r of res) {
+    const li = document.createElement("li");
+    const tag = document.createElement("span");
+    tag.className = "tag " + r.level;
+    tag.textContent = r.level === "ok" ? "PASS" : r.level === "warn" ? "WARN" : "FAIL";
+    const txt = document.createElement("span");
+    txt.textContent = r.text;
+    li.append(tag, txt);
+    list.append(li);
+  }
+}
+
+// ---------- wiring ----------
+function showTab(which) {
+  const build = which === "build";
+  $("viewBuild").classList.toggle("hidden", !build);
+  $("viewCheck").classList.toggle("hidden", build);
+  $("tabBuild").setAttribute("aria-selected", String(build));
+  $("tabCheck").setAttribute("aria-selected", String(!build));
+  if (location.hash !== (build ? "" : "#check")) history.replaceState(null, "", build ? location.pathname + location.search : "#check");
+}
+
+for (const f of FIELDS) $("f_" + f.id).addEventListener("input", render);
+$("btnExample").addEventListener("click", () => { fill(EXAMPLE); flash("Example loaded. It describes this project."); });
+$("btnClear").addEventListener("click", () => { fill({}); flash("Cleared."); });
+$("btnCopy").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("output").value); flash("Copied. Paste it into your AI assistant."); }
+  catch (e) { $("output").select(); document.execCommand("copy"); flash("Copied."); }
+});
+$("btnDownload").addEventListener("click", () => {
+  const blob = new Blob([$("output").value], { type: "text/markdown" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const slug = ($("f_name").value.trim() || "readme").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  a.download = `${slug}-readme-prompt.md`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+$("tabBuild").addEventListener("click", () => showTab("build"));
+$("tabCheck").addEventListener("click", () => showTab("check"));
+$("btnRunCheck").addEventListener("click", runCheck);
+
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {}; } catch (e) {}
+const params = new URLSearchParams(location.search);
+if (params.has("example")) saved = EXAMPLE;
+fill(saved);
+if (location.hash === "#check") showTab("check");
+</script>
+</body>
+</html>
